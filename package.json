@@ -20,7 +20,12 @@
     "react-helmet": "^6.1.0"
   },
   "devDependencies": {
-    "prettier": "2.2.1"
+    "@emotion/react": "^11.1.5",
+    "@emotion/styled": "^11.1.5",
+    "gatsby-plugin-emotion": "^6.1.0",
+    "prettier": "2.2.1",
+    "tailwindcss": "^2.0.4",
+    "twin.macro": "^2.3.1"
   },
   "keywords": [
     "gatsby"
