@@ -1,33 +1,17 @@
-import React, { useState } from "react"
-import tw, { styled } from "twin.macro"
+import React, { useRef, useState } from "react"
+import tw from "twin.macro"
 import { getMsFromDays, getMsFromMins } from "../utils"
 import ErrorMessage from "./ErrorMessage"
-
-const Form = tw.form`
-  my-8 space-y-6
-`
-
-const Fieldset = tw.fieldset`
-  space-y-6
-`
-
-const Label = tw.label`
-  block text-sm sm:text-base font-medium text-gray-700 mb-3
-`
-
-const MessageField = styled.textarea`
-  ${tw`w-full h-40 px-2 py-2 text-sm sm:text-base text-gray-700 placeholder-gray-500 border rounded-md focus:(outline-none ring-2 ring-blue-600 border-transparent)`}
-  ${({ hasError }) => hasError && tw`border-red-600 focus:(ring-red-600)`}
-`
-
-const FieldGroup = tw.div`
-  relative text-gray-700
-`
-
-const PasswordField = styled.input`
-  ${tw`w-full px-2 py-2 text-sm sm:text-base text-gray-700 placeholder-gray-500 border rounded-md focus:(outline-none ring-2 ring-blue-600 border-transparent)`}
-  ${({ hasError }) => hasError && tw`border-red-600 focus:(ring-red-600)`}
-`
+import {
+  FieldGroup,
+  Fieldset,
+  Form,
+  Label,
+  MessageField,
+  PasswordField,
+  SubmitButton,
+} from "./Form"
+import Spinner from "./Spinner"
 
 const ExpirationDropdownWrap = tw(FieldGroup)`inline-block`
 
@@ -38,13 +22,19 @@ const ExpirationDropdownIcon = tw.div`
   absolute bottom-0 right-0 flex items-center h-10 px-2 pointer-events-none
 `
 
-const SubmitButton = tw.button`
-  relative w-full flex items-center justify-center py-2 px-4 text-sm sm:text-base font-medium shadow-md rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:(outline-none ring-2 ring-blue-500 ring-offset-2 ring-offset-blue-200)
+const FormFieldError = tw.span`text-sm text-red-700`
+
+const LinkField = tw(PasswordField)`h-14 pr-32`
+
+const CopyButton = tw(SubmitButton)`
+  absolute top-0 right-0 bottom-0 mt-1 mr-1 mb-1 px-8 w-auto
 `
 
-const Spinner = tw.svg`animate-spin mr-3 h-5 w-5 text-white`
+const CopyIcon = tw.svg`h-6 w-6 mr-2`
 
-const FormFieldError = tw.span`text-sm text-red-700`
+const ResetButton = tw(SubmitButton)`
+  w-auto shadow-none text-gray-700 bg-transparent border-gray-400 hover:bg-gray-200 my-6 border border-gray-200
+`
 
 const MINS_15 = getMsFromMins(15)
 const MINS_30 = getMsFromMins(30)
@@ -57,11 +47,16 @@ const INITIAL_FIELDS = {
   expiration: DAYS_1,
 }
 
+const INITIAL_RESPONSE = {}
+
+const INITAL_ERRORS = {}
+
 const CreateSecretForm = () => {
   const [fields, setFields] = useState(INITIAL_FIELDS)
-  const [response, setResponse] = useState({})
-  const [errors, setErrors] = useState({})
+  const [response, setResponse] = useState(INITIAL_RESPONSE)
+  const [errors, setErrors] = useState(INITAL_ERRORS)
   const [isLoading, setLoading] = useState(false)
+  const linkRef = useRef(null)
 
   const handleSubmit = async e => {
     e.preventDefault()
@@ -83,6 +78,7 @@ const CreateSecretForm = () => {
       return false
     }
 
+    setResponse(data)
     setFields(INITIAL_FIELDS)
     setLoading(false)
     return false
@@ -96,6 +92,57 @@ const CreateSecretForm = () => {
         [name]: value,
       }
     })
+  }
+
+  if (response?.content) {
+    return (
+      <>
+        <FieldGroup>
+          <LinkField
+            ref={linkRef}
+            value={`${document.URL}secrets/${response._id}`}
+            readOnly
+          />
+          <CopyButton
+            onClick={async e => {
+              if (!navigator.clipboard) {
+                return
+              }
+
+              try {
+                await navigator.clipboard.writeText(
+                  `${document.URL}secrets/${response._id}`
+                )
+                linkRef.current.select()
+              } catch (error) {
+                console.error("Could not copy to clipboard!", error)
+              }
+            }}
+          >
+            <CopyIcon
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              height={20}
+              width={20}
+            >
+              <path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z" />
+              <path d="M3 8a2 2 0 012-2v10h8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
+            </CopyIcon>
+            Copy
+          </CopyButton>
+        </FieldGroup>
+        <ResetButton
+          onClick={e => {
+            setResponse(INITIAL_RESPONSE)
+            setFields(INITIAL_FIELDS)
+            setErrors(INITAL_ERRORS)
+          }}
+        >
+          Create new secret
+        </ResetButton>
+      </>
+    )
   }
 
   return (
@@ -176,37 +223,13 @@ const CreateSecretForm = () => {
             </ExpirationDropdownIcon>
           </ExpirationDropdownWrap>
           <SubmitButton type="submit">
-            {isLoading && (
-              <Spinner
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </Spinner>
-            )}
-            Create secret link{" "}
+            {isLoading && <Spinner />}
+            Encrypt and create link
           </SubmitButton>
         </Fieldset>
       </Form>
     </>
   )
 }
-
-CreateSecretForm.propTypes = {}
-
-CreateSecretForm.defaultProps = {}
 
 export default CreateSecretForm
