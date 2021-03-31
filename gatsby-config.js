@@ -6,7 +6,7 @@ module.exports = {
   },
   proxy: {
     prefix: `/api`,
-    url: `http://localhost:7777`,
+    url: `https://api.keyvanish.com`,
   },
   plugins: [
     `gatsby-plugin-react-helmet`,
