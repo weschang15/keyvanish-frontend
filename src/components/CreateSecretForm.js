@@ -61,7 +61,7 @@ const CreateSecretForm = () => {
   const handleSubmit = async e => {
     e.preventDefault()
     setLoading(true)
-    const res = await fetch("/api/secrets", {
+    const res = await fetch(`${GATSBY_API_DOMAIN}/api/secrets`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
