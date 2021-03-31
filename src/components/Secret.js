@@ -52,13 +52,16 @@ const Secret = () => {
   const handleSubmit = async e => {
     e.preventDefault()
     setLoading(true)
-    const res = await fetch(`${GATSBY_API_DOMAIN}/api/secrets/${params.id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(fields),
-    })
+    const res = await fetch(
+      `${process.env.GATSBY_API_DOMAIN}/api/secrets/${params.id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(fields),
+      }
+    )
 
     const data = await res.json()
 
