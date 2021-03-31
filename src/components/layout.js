@@ -12,7 +12,7 @@ import tw from "twin.macro"
 import Topbar from "./Topbar"
 
 const Container = tw.div`
-  w-full max-w-screen-sm	mx-auto
+  w-full max-w-screen-sm	mx-auto px-4
 `
 
 const Footer = tw.footer`

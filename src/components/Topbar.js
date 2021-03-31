@@ -4,7 +4,7 @@ import * as React from "react"
 import tw from "twin.macro"
 
 const Header = tw.header`
-  flex items-center justify-between px-4 py-4
+  flex items-center justify-between px-4 py-4 border-b border-gray-200 mb-6
 `
 
 const Title = tw.div`
